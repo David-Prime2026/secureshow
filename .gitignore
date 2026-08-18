@@ -1,0 +1,16 @@
+# Root-level source files (copies live in assets/)
+/*.mp4
+/*.png
+/*.jpg
+
+# Documents (not part of the website)
+/*.pdf
+/*.docx
+
+# Screenshots (copies live in assets/images/)
+/Screenshot*.png
+
+# IDE / editor
+.DS_Store
+Thumbs.db
+.vscode/
