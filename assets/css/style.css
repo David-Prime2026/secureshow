@@ -1,6 +1,6 @@
 /* ========== RESET & BASE ========== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1a1a1a;
@@ -147,7 +147,7 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 80px;
 }
 .logo-link {
   display: flex;
@@ -155,7 +155,7 @@ ul { list-style: none; }
   flex-shrink: 0;
 }
 .logo-img {
-  height: 48px;
+  height: 64px;
   width: auto;
   animation: logoReveal 0.8s ease-out;
 }
@@ -1157,7 +1157,7 @@ ul { list-style: none; }
   .main-nav {
     display: none;
     position: fixed;
-    top: 72px;
+    top: 80px;
     left: 0;
     right: 0;
     bottom: 0;
