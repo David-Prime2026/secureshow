@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRIME Codebase Review</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Code+Pro:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #FAFBFC;
+    --surface: #FFFFFF;
+    --text: #1C2333;
+    --text-2: #4E5668;
+    --border: #D4D9E3;
+    --accent: #1F3D6F;
+    --accent-light: #EBF0F7;
+    --good: #157A3F;
+    --good-bg: #E5F4EC;
+    --warn: #A0600A;
+    --warn-bg: #FDF4E6;
+    --critical: #B82E2E;
+    --critical-bg: #FDECEC;
+    --info: #4E5668;
+    --info-bg: #F0F2F5;
+    --stripe: #F5F6F9;
+    --code: #F0F2F5;
+    font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111521;
+      --surface: #181D2B;
+      --text: #D8DCE6;
+      --text-2: #8890A4;
+      --border: #2A3044;
+      --accent: #6B9DD6;
+      --accent-light: #1A2438;
+      --good: #3DAA6E;
+      --good-bg: #142A1E;
+      --warn: #D4A33A;
+      --warn-bg: #2A2418;
+      --critical: #E85555;
+      --critical-bg: #2C1A1A;
+      --info: #8890A4;
+      --info-bg: #1E2230;
+      --stripe: #1A1F2C;
+      --code: #1E2230;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111521;
+    --surface: #181D2B;
+    --text: #D8DCE6;
+    --text-2: #8890A4;
+    --border: #2A3044;
+    --accent: #6B9DD6;
+    --accent-light: #1A2438;
+    --good: #3DAA6E;
+    --good-bg: #142A1E;
+    --warn: #D4A33A;
+    --warn-bg: #2A2418;
+    --critical: #E85555;
+    --critical-bg: #2C1A1A;
+    --info: #8890A4;
+    --info-bg: #1E2230;
+    --stripe: #1A1F2C;
+    --code: #1E2230;
+    color-scheme: dark;
+  }
+
+  body { background: var(--bg); color: var(--text); line-height: 1.6; max-width: 820px; margin: 0 auto; padding-inline: 1.25rem; padding-block: 2rem 4rem; }
+  h1 { font-size: 1.35rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.6rem; padding-bottom: 0.35rem; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 0.88rem; font-weight: 700; margin: 1.25rem 0 0.4rem; color: var(--accent); }
+  p, li { font-size: 0.88rem; }
+  ul { padding-left: 1.25rem; margin: 0.4rem 0; }
+  li { margin-bottom: 0.3rem; }
+
+  .memo-header { border-bottom: 3px solid var(--accent); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+  .memo-meta { display: grid; grid-template-columns: 55px 1fr; gap: 0.15rem 0.75rem; font-size: 0.82rem; margin-top: 0.75rem; }
+  .memo-label { font-weight: 700; color: var(--text-2); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; }
+  .memo-value { color: var(--text); }
+
+  .status-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-good { background: var(--good-bg); color: var(--good); }
+  .badge-warn { background: var(--warn-bg); color: var(--warn); }
+  .badge-critical { background: var(--critical-bg); color: var(--critical); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+
+  .tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.5rem 0 1rem; }
+  .tbl thead th { text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); padding: 0.4rem 0.5rem; border-bottom: 2px solid var(--border); }
+  .tbl tbody td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--stripe); vertical-align: top; }
+  .tbl tbody tr:nth-child(even) { background: var(--stripe); }
+  .tbl .col-item { font-weight: 600; min-width: 0; }
+  .tbl .col-notes { color: var(--text-2); font-size: 0.78rem; min-width: 0; }
+  .twrap { overflow-x: auto; }
+
+  .action-item { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--critical); padding: 0.85rem 1rem; margin: 0.6rem 0; font-size: 0.82rem; border-radius: 0 4px 4px 0; }
+  .action-item.warn { border-left-color: var(--warn); }
+  .action-item.info { border-left-color: var(--accent); }
+  .action-item strong { color: var(--text); }
+  .action-item p { margin: 0.25rem 0 0; }
+  .action-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.2rem; }
+  .action-label.crit { color: var(--critical); }
+  .action-label.wrn { color: var(--warn); }
+  .action-label.inf { color: var(--accent); }
+
+  .code { font-family: 'Source Code Pro', monospace; font-size: 0.82em; background: var(--code); padding: 0.1rem 0.3rem; border-radius: 2px; }
+
+  .summary-box { background: var(--accent-light); border: 1px solid var(--border); padding: 1rem 1.15rem; margin: 1.25rem 0; font-size: 0.85rem; border-radius: 4px; }
+  .summary-box p { margin: 0.3rem 0 0; }
+
+  .sig { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<div class="memo-header">
+  <h1>SecureShow Codebase Review &amp; Required Actions</h1>
+  <div class="memo-meta">
+    <span class="memo-label">From</span><span class="memo-value">PRIME Time Systems</span>
+    <span class="memo-label">To</span><span class="memo-value">Corpsoft Solutions — Development Team</span>
+    <span class="memo-label">Date</span><span class="memo-value">October 5, 2026</span>
+    <span class="memo-label">Re</span><span class="memo-value">Code audit of secureshow-backend and secureshow-frontend repositories (development branches)</span>
+  </div>
+</div>
+
+<div class="summary-box">
+  <strong>Summary:</strong> PRIME has completed an independent audit of both SecureShow repositories. The core permission chain and five-point unlock validation are fully implemented, and the overall engineering quality is strong. This report addresses three required corrections, two vendor alignment items, and the remaining work for production readiness.
+</div>
+
+<h2>1. Overall assessment</h2>
+
+<p>The <span class="code">development</span> branch of both repositories reflects substantial, well-structured work: 133,749 lines added across 1,475 backend files, 239 backend test files, 126 frontend spec files. All 11 steps of the SecureShow permission dependency chain are implemented and tested. The five-point unlock validation (credential, time window, device binding, geofence, facial match) is enforced server-side.</p>
+
+<p>The gateway abstraction pattern used for locks (<span class="code">LockGateway</span>) and cameras (<span class="code">LockCameraGateway</span>) is well-designed, with contracts and fake implementations for testing. The frontend unlock flow is particularly thorough, handling 15 distinct states with accessibility annotations, attempt limiting, session management, and visibility-aware polling.</p>
+
+<h2>2. Required corrections</h2>
+
+<p>The following items must be addressed before production deployment. Items marked <span class="status-badge badge-critical">CRITICAL</span> are blockers.</p>
+
+<div class="action-item">
+  <div class="action-label crit">Critical — Database engine</div>
+  <strong>MySQL must be replaced with PostgreSQL.</strong>
+  <p>Both the PRIME technical specification and the Corpsoft Product Technical Roadmap specify PostgreSQL (AWS RDS). The codebase uses MySQL 8.0 as its default database connection. This substitution was not authorized or discussed with PRIME. A <span class="code">pgsql</span> configuration block already exists in the Laravel config. The migration to PostgreSQL should be completed before any production data is written. Delaying this increases the cost and risk of switching.</p>
+  <p><strong>Required action:</strong> Switch <span class="code">DB_CONNECTION</span> to <span class="code">pgsql</span>, verify all migrations against PostgreSQL dialect, update Docker Compose to use PostgreSQL, and confirm functionality in staging. Provide a timeline by October 10.</p>
+</div>
+
+<div class="action-item">
+  <div class="action-label crit">Critical — CORS configuration</div>
+  <strong>CORS allowed origins must be restricted.</strong>
+  <p>The current configuration sets <span class="code">allowed_origins: ['*']</span>, which permits any domain to make authenticated requests to the API. This is acceptable for local development but is a security vulnerability in any deployed environment.</p>
+  <p><strong>Required action:</strong> Restrict <span class="code">allowed_origins</span> to the actual frontend domain(s) in all non-local environment configurations. This should be completed before the next staging deployment.</p>
+</div>
+
+<div class="action-item">
+  <div class="action-label crit">Critical — Branch management</div>
+  <strong>The <span class="code">main</span> branch does not reflect the application state.</strong>
+  <p>The <span class="code">main</span> branch contains only the initial Laravel scaffold commit. The <span class="code">development</span> branch is 332 commits ahead with 100% of the application code. If a deployment targets <span class="code">main</span>, it deploys a skeleton application. Both repositories exhibit this pattern.</p>
+  <p><strong>Required action:</strong> Merge <span class="code">development</span> into <span class="code">main</span> and establish branch protection rules. Provide confirmation when complete.</p>
+</div>
+
+<h2>3. Contract template content</h2>
+
+<div class="action-item warn">
+  <div class="action-label wrn">Requires clarification</div>
+  <strong>RPM Financial vehicle financing agreement templates in the codebase.</strong>
+  <p>The contract blade templates (<span class="code">resources/views/contracts/components/page1-30.blade.php</span>) contain a 30-page vehicle financing agreement for "RPM Financial." This appears to be content from a different Corpsoft project. SecureShow requires a property showing liability agreement, not a vehicle financing contract.</p>
+  <p><strong>Required action:</strong> Confirm whether this content is placeholder scaffolding or was included in error. If placeholder, provide a timeline for replacing it with the SecureShow-specific liability agreement.</p>
+</div>
+
+<h2>4. Vendor alignment</h2>
+
+<p>The following vendor decisions were made by PRIME and are confirmed. The Corpsoft roadmap should be updated to reflect them.</p>
+
+<div class="twrap">
+<table class="tbl">
+  <thead><tr><th>Component</th><th>Roadmap spec</th><th>PRIME decision</th><th>Status in code</th><th>Action needed</th></tr></thead>
+  <tbody>
+    <tr>
+      <td class="col-item">KYC / Identity</td>
+      <td>Veriff</td>
+      <td>Sumsub</td>
+      <td><span class="status-badge badge-good">Aligned</span></td>
+      <td class="col-notes">Implemented correctly. Update roadmap to reflect Sumsub as approved provider. Enable feature flag (<span class="code">SUMSUB_ENABLED</span>) for staging validation.</td>
+    </tr>
+    <tr>
+      <td class="col-item">Camera hardware</td>
+      <td>Reolink PoE + AWS KVS</td>
+      <td>Lockstar</td>
+      <td><span class="status-badge badge-warn">Tuya cameras</span></td>
+      <td class="col-notes">Current integration uses Tuya camera API. Lockstar integration needs to be scoped. The <span class="code">LockCameraGateway</span> contract supports adding a new implementation. Clip storage remains with Tuya. Provide an assessment of what Lockstar integration requires.</td>
+    </tr>
+    <tr>
+      <td class="col-item">Lock integration</td>
+      <td>Seam API</td>
+      <td>Under review</td>
+      <td><span class="status-badge badge-info">Tuya direct</span></td>
+      <td class="col-notes">Current integration is direct Tuya OpenAPI. The lock vendor supports both Tuya and TTLock. TTLock is supported by Seam, which would restore the multi-vendor flexibility in the original design. The <span class="code">LockGateway</span> contract supports adding a <span class="code">SeamLockGateway</span> alongside the existing <span class="code">TuyaLockGateway</span>. PRIME is evaluating whether to add Seam/TTLock as an option. No action required from Corpsoft at this time; await PRIME direction.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>5. Remaining work for production</h2>
+
+<p>The following items are required before pilot deployment. This list reflects the current codebase state, not the sprint tracker (which understates actual progress).</p>
+
+<div class="twrap">
+<table class="tbl">
+  <thead><tr><th>Item</th><th>Priority</th><th>Estimated effort</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td class="col-item">PostgreSQL migration</td><td><span class="status-badge badge-critical">Blocker</span></td><td>3-5 days</td><td class="col-notes">Migration files, Docker, staging validation</td></tr>
+    <tr><td class="col-item">CORS restriction</td><td><span class="status-badge badge-critical">Blocker</span></td><td>1 day</td><td class="col-notes">Environment-specific allowed_origins</td></tr>
+    <tr><td class="col-item">Branch merge + protection</td><td><span class="status-badge badge-critical">Blocker</span></td><td>1 day</td><td class="col-notes">development → main, both repos</td></tr>
+    <tr><td class="col-item">Sumsub feature flag + E2E test</td><td><span class="status-badge badge-critical">Blocker</span></td><td>2-3 days</td><td class="col-notes">Enable in staging, test full KYC flow</td></tr>
+    <tr><td class="col-item">Runtime health endpoint</td><td><span class="status-badge badge-warn">High</span></td><td>1-2 days</td><td class="col-notes">DB, Redis, queue, Tuya connectivity checks. Currently health checks are CI-only.</td></tr>
+    <tr><td class="col-item">Production environment config</td><td><span class="status-badge badge-warn">High</span></td><td>3-5 days</td><td class="col-notes">AWS deployment (RDS PostgreSQL, ElastiCache, S3), production Docker, environment variables</td></tr>
+    <tr><td class="col-item">Lockstar camera integration</td><td><span class="status-badge badge-warn">High</span></td><td>TBD</td><td class="col-notes">Depends on Lockstar API/SDK availability. Scope assessment requested.</td></tr>
+    <tr><td class="col-item">E2E test suite</td><td><span class="status-badge badge-info">Medium</span></td><td>5-7 days</td><td class="col-notes">Full chain: registration → KYC → booking → geofence → facial match → unlock → departure → session close</td></tr>
+    <tr><td class="col-item">APM / monitoring integration</td><td><span class="status-badge badge-info">Medium</span></td><td>2-3 days</td><td class="col-notes">Datadog, New Relic, or CloudWatch. Alerting on failed unlocks, KYC rejections, lock offline events.</td></tr>
+    <tr><td class="col-item">Liability agreement content</td><td><span class="status-badge badge-info">Medium</span></td><td>TBD</td><td class="col-notes">Replace RPM Financial contract templates with SecureShow property showing agreement</td></tr>
+    <tr><td class="col-item">Admin system dashboard</td><td><span class="status-badge badge-info">Medium</span></td><td>3-4 days</td><td class="col-notes">Admin currently redirects to PM management. No system health overview exists.</td></tr>
+    <tr><td class="col-item">Entry/exit clip playback UI</td><td><span class="status-badge badge-info">Low</span></td><td>2-3 days</td><td class="col-notes">Recording infrastructure exists. Buyer-facing playback component is missing.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>6. Sprint tracker reconciliation</h2>
+
+<p>PRIME notes a significant discrepancy between the sprint tracker (xlsx) and the actual codebase. The tracker showed 29 of 41 Sprint 5-7 items as "not started" and did not include geofence or facial match. The codebase shows both fully implemented with tests, along with the complete permission chain, PM dashboard, PM onboarding, and 28+ notification classes.</p>
+
+<p>We request that the sprint tracker be updated to reflect the actual state of the codebase. Accurate tracking is essential for PRIME's planning and stakeholder reporting. If the tracker is measuring something other than implementation status (e.g., QA acceptance), that distinction should be documented.</p>
+
+<h2>7. What is working well</h2>
+
+<p>PRIME acknowledges the following as strong engineering decisions:</p>
+<ul>
+  <li>Gateway abstraction pattern for locks and cameras — enables vendor swaps without application changes</li>
+  <li>Server-side enforcement of all five unlock preconditions — security controls cannot be bypassed by client manipulation</li>
+  <li>Comprehensive rate limiting with per-endpoint buckets tuned to each route's abuse profile</li>
+  <li>KYC data encryption at rest with separate key streams</li>
+  <li>Device fingerprint binding with rebind requiring OTP verification</li>
+  <li>Architecture enforcement via deptrac preventing accidental layer violations</li>
+  <li>Fake gateway implementations enabling thorough testing without external service dependencies</li>
+  <li>Frontend unlock flow with 15-state machine, accessibility annotations, attempt persistence for reload recovery, and visibility-aware polling</li>
+  <li>239 backend test files and 126 frontend specs demonstrating real test investment</li>
+</ul>
+
+<h2>8. Requested response</h2>
+
+<p>PRIME requests written responses on the following by <strong>October 10, 2026</strong>:</p>
+
+<ol style="font-size:0.85rem;">
+  <li>Timeline for PostgreSQL migration</li>
+  <li>Confirmation of CORS restriction deployment to staging</li>
+  <li>Confirmation of development → main merge with branch protection</li>
+  <li>Clarification on the RPM Financial contract templates</li>
+  <li>Assessment of Lockstar camera integration scope and effort</li>
+  <li>Updated sprint tracker reflecting actual codebase state</li>
+</ol>
+
+<div class="sig">
+  <strong>PRIME Time Systems</strong><br>
+  David Saunders<br>
+  SecureShow Program Office
+</div>
+
+</body>
+</html>
